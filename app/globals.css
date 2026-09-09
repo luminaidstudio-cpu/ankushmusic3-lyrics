@@ -89,3 +89,4 @@ textarea { resize: vertical; line-height: 1.6; }
   .hero h1 { font-size: 58px; }
   .lyrics-page h1 { font-size: 54px; }
 }
+.field-hint{display:block;margin-top:6px;font-size:12px;opacity:.6;}

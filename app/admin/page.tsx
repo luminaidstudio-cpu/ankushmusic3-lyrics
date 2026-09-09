@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -71,6 +72,7 @@ export default function AdminPage() {
 
   function startEdit(song: Song) {
     setEditingId(song.id);
+    setCoverFile(null);
     setForm({
       slug: song.slug,
       title: song.title,
@@ -87,6 +89,7 @@ export default function AdminPage() {
 
   function resetForm() {
     setEditingId(null);
+    setCoverFile(null);
     setForm(blankSong);
   }
 
@@ -95,6 +98,41 @@ export default function AdminPage() {
     setBusy(true);
     setMessage("");
 
+    let coverUrl = form.cover_url.trim() || null;
+
+    if (coverFile) {
+      if (!coverFile.type.startsWith("image/")) {
+        setBusy(false);
+        setMessage("Please select an image file.");
+        return;
+      }
+
+      if (coverFile.size > 5 * 1024 * 1024) {
+        setBusy(false);
+        setMessage("Cover image must be 5 MB or smaller.");
+        return;
+      }
+
+      const safeName = coverFile.name.toLowerCase().replace(/[^a-z0-9.-]+/g, "-");
+      const path = `${crypto.randomUUID()}-${safeName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("covers")
+        .upload(path, coverFile, {
+          upsert: false,
+          contentType: coverFile.type
+        });
+
+      if (uploadError) {
+        setBusy(false);
+        setMessage(`Cover upload failed: ${uploadError.message}`);
+        return;
+      }
+
+      const { data: publicData } = supabase.storage.from("covers").getPublicUrl(path);
+      coverUrl = publicData.publicUrl;
+    }
+
     const payload = {
       slug: form.slug.trim(),
       title: form.title.trim(),
@@ -102,7 +140,7 @@ export default function AdminPage() {
       lyrics: form.lyrics,
       youtube_url: form.youtube_url.trim() || null,
       spotify_url: form.spotify_url.trim() || null,
-      cover_url: form.cover_url.trim() || null,
+      cover_url: coverUrl,
       release_date: form.release_date || null,
       published: form.published
     };
@@ -186,7 +224,19 @@ export default function AdminPage() {
           <div className="form-grid">
             <label>YouTube URL<input value={form.youtube_url} onChange={(e) => setForm({...form, youtube_url: e.target.value})} placeholder="https://youtube.com/..." /></label>
             <label>Spotify URL<input value={form.spotify_url} onChange={(e) => setForm({...form, spotify_url: e.target.value})} placeholder="https://open.spotify.com/..." /></label>
-            <label>Cover image URL<input value={form.cover_url} onChange={(e) => setForm({...form, cover_url: e.target.value})} placeholder="Optional image URL" /></label>
+            <label>
+              Cover image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+              />
+              <span className="field-hint">Upload JPG, PNG, WEBP or another image (max 5 MB).</span>
+            </label>
+            <label>
+              Cover image URL
+              <input value={form.cover_url} onChange={(e) => setForm({...form, cover_url: e.target.value})} placeholder="Optional — upload above or paste a URL" />
+            </label>
           </div>
           <label className="check"><input type="checkbox" checked={form.published} onChange={(e) => setForm({...form, published: e.target.checked})} /> Publish on website</label>
           <div className="button-row">
