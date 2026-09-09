@@ -24,10 +24,15 @@ function youtubeId(url: string | null) {
   return match?.[1] ?? null;
 }
 
+function isSection(line: string) {
+  return /^\s*\[[^\]]+\]\s*$/.test(line);
+}
+
 export default function LyricsPage() {
   const params = useParams<{ slug: string }>();
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -45,24 +50,61 @@ export default function LyricsPage() {
 
   const video = useMemo(() => youtubeId(song?.youtube_url ?? null), [song]);
 
+  async function shareSong() {
+    if (!song) return;
+    const shareData = {
+      title: `${song.title} — ${song.artist}`,
+      text: `Read the lyrics of ${song.title} by ${song.artist} on ANKUSHMUSIC3.`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+      }
+    } catch {
+      // User cancelled the native share sheet.
+    }
+  }
+
   if (loading) return <main><div className="empty page-empty">Loading...</div></main>;
   if (!song) return <main><div className="empty page-empty">Song not found.</div></main>;
+
+  const lines = song.lyrics.split("\n");
 
   return (
     <main>
       <nav className="nav">
         <Link href="/" className="brand">ANKUSH<span>MUSIC3</span></Link>
-        <Link href="/" className="admin-link">← Back</Link>
+        <Link href="/" className="admin-link">‹ Back</Link>
       </nav>
 
-      <article className="lyrics-page">
-        <p className="eyebrow">{song.artist}</p>
-        <h1>{song.title}</h1>
-        {song.release_date && <p className="release">Released {song.release_date}</p>}
+      <article className="lyrics-page page-animate">
+        <div className="lyrics-hero hero-animate">
+          <div
+            className="lyrics-cover"
+            style={song.cover_url ? { backgroundImage: `url(${song.cover_url})` } : undefined}
+          >
+            {!song.cover_url && <span>AM3</span>}
+          </div>
 
-        <div className="link-row">
-          {song.spotify_url && <a href={song.spotify_url} target="_blank" rel="noreferrer" className="btn">Spotify ↗</a>}
-          {song.youtube_url && <a href={song.youtube_url} target="_blank" rel="noreferrer" className="btn">YouTube ↗</a>}
+          <div className="lyrics-meta">
+            <p className="eyebrow">{song.artist}</p>
+            <h1>{song.title}</h1>
+            {song.release_date && <p className="release">Released {song.release_date}</p>}
+
+            <div className="link-row">
+              {song.youtube_url && <a href={song.youtube_url} target="_blank" rel="noreferrer" className="btn primary">▶ Watch</a>}
+              {song.spotify_url && <a href={song.spotify_url} target="_blank" rel="noreferrer" className="btn">♫ Spotify</a>}
+              <button type="button" onClick={shareSong} className="btn">
+                {copied ? "Link copied ✓" : "⤴ Share"}
+              </button>
+            </div>
+          </div>
         </div>
 
         {video && (
@@ -76,11 +118,18 @@ export default function LyricsPage() {
           </div>
         )}
 
+        <div className="lyrics-heading reveal-up">
+          <p className="eyebrow">Official Lyrics</p>
+          <h2>Words behind the music.</h2>
+        </div>
+
         <div className="lyrics">
-          {song.lyrics.split("\n").map((line, i) => (
-            <div key={i} className={line.trim() ? "lyric-line" : "lyric-gap"}>
-              {line || "\u00A0"}
-            </div>
+          {lines.map((line, i) => (
+            isSection(line)
+              ? <div key={i} className="lyric-section">{line.replace(/^\[|\]$/g, "")}</div>
+              : <div key={i} style={{"--lyric-index": i} as React.CSSProperties} className={line.trim() ? "lyric-line" : "lyric-gap"}>
+                  {line || "\u00A0"}
+                </div>
           ))}
         </div>
       </article>
