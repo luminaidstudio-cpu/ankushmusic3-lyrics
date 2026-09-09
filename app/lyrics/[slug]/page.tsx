@@ -1,52 +1,94 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import songs from "../../../data/songs.json";
+"use client";
 
-function youtubeId(url: string) {
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtu.be")) return u.pathname.slice(1);
-    return u.searchParams.get("v") || "";
-  } catch { return ""; }
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "../../../lib/supabase";
+
+type Song = {
+  id: string;
+  slug: string;
+  title: string;
+  artist: string;
+  lyrics: string;
+  youtube_url: string | null;
+  spotify_url: string | null;
+  cover_url: string | null;
+  release_date: string | null;
+  published: boolean;
+};
+
+function youtubeId(url: string | null) {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+  return match?.[1] ?? null;
 }
 
-export default async function LyricsPage({ params }: { params: { slug: string } }) {
-  const song = songs.find(s => s.slug === params.slug);
-  if (!song) notFound();
-  const yt = youtubeId(song.youtube);
+export default function LyricsPage() {
+  const params = useParams<{ slug: string }>();
+  const [song, setSong] = useState<Song | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from("songs")
+        .select("*")
+        .eq("slug", params.slug)
+        .eq("published", true)
+        .maybeSingle();
+      setSong((data as Song | null) ?? null);
+      setLoading(false);
+    }
+    load();
+  }, [params.slug]);
+
+  const video = useMemo(() => youtubeId(song?.youtube_url ?? null), [song]);
+
+  if (loading) return <main><div className="empty page-empty">Loading...</div></main>;
+  if (!song) return <main><div className="empty page-empty">Song not found.</div></main>;
+
   return (
     <main>
-      <header className="site-header">
-        <Link className="brand" href="/">ANKUSH<span>MUSIC3</span></Link>
-        <nav><Link href="/">All Lyrics</Link><Link href="/admin">Admin</Link></nav>
-      </header>
+      <nav className="nav">
+        <Link href="/" className="brand">ANKUSH<span>MUSIC3</span></Link>
+        <Link href="/" className="admin-link">← Back</Link>
+      </nav>
 
       <article className="lyrics-page">
-        <Link className="back" href="/">← Back to lyrics</Link>
-        <div className="lyrics-hero">
-          <div className="cover large"><span>{song.title.slice(0,1)}</span></div>
-          <div><div className="eyebrow">OFFICIAL LYRICS</div><h1>{song.title}</h1><p className="sub">{song.artist} · {song.year}</p></div>
+        <p className="eyebrow">{song.artist}</p>
+        <h1>{song.title}</h1>
+        {song.release_date && <p className="release">Released {song.release_date}</p>}
+
+        <div className="link-row">
+          {song.spotify_url && <a href={song.spotify_url} target="_blank" rel="noreferrer" className="btn">Spotify ↗</a>}
+          {song.youtube_url && <a href={song.youtube_url} target="_blank" rel="noreferrer" className="btn">YouTube ↗</a>}
         </div>
 
-        <div className="media-row">
-          {yt ? <div className="video-wrap"><iframe src={`https://www.youtube.com/embed/${yt}`} title={`${song.title} on YouTube`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /></div> : null}
-          <div className="listen-box">
-            <div className="eyebrow">LISTEN / WATCH</div>
-            <a className="btn red" href={song.youtube} target="_blank" rel="noreferrer">▶ YouTube</a>
-            <a className="btn" href={song.spotify} target="_blank" rel="noreferrer">♫ Spotify</a>
+        {video && (
+          <div className="video">
+            <iframe
+              src={`https://www.youtube.com/embed/${video}`}
+              title={song.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
-        </div>
+        )}
 
-        <div className="lyrics-wrap">
-          <div className="eyebrow">LYRICS</div>
-          <div className="lyrics">{song.lyrics.split("\n").map((line, i) => <p key={i}>{line || "\u00A0"}</p>)}</div>
-        </div>
-
-        <div className="copyright">
-          <strong>© {song.year} ANKUSHMUSIC3 / Ankush X</strong>
-          <p>Lyrics written by Ankush X. All Rights Reserved. Unauthorized reproduction, redistribution or commercial use of these lyrics is prohibited without permission.</p>
+        <div className="lyrics">
+          {song.lyrics.split("\n").map((line, i) => (
+            <div key={i} className={line.trim() ? "lyric-line" : "lyric-gap"}>
+              {line || "\u00A0"}
+            </div>
+          ))}
         </div>
       </article>
+
+      <footer>
+        <p>© {new Date().getFullYear()} ANKUSHMUSIC3. All rights reserved.</p>
+        <p>Lyrics and original content are protected by applicable copyright laws.</p>
+      </footer>
     </main>
   );
 }

@@ -1,26 +1,16 @@
-# ANKUSHMUSIC3 — Official Lyrics
+# ANKUSHMUSIC3 Lyrics
 
-Premium black/red lyrics website starter for Ankush X.
+Next.js + Supabase lyrics website.
 
-## Stack
-- Next.js
-- React
-- Supabase
-- Vercel
-- GitHub
+## Environment variables
 
-## Local run
-```bash
-npm install
-npm run dev
-```
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Then open http://localhost:3000
+The publishable key is intended for browser use. Never put a Supabase secret/service-role key in the client app.
 
-## Deploy
-Push this project to GitHub, import the repository into Vercel, and deploy.
+## Admin
 
-## Database
-See `SUPABASE_SETUP.md` and `supabase/schema.sql`.
+Open `/admin` and sign in with the Supabase Auth email/password user created for the site.
 
-The included home page and lyrics pages work immediately with the sample `data/songs.json`. The admin/database layer is intentionally separated so production authentication is not faked with a hard-coded password.
+The admin can add, edit, publish/unpublish, and delete songs. Public pages show only published songs.

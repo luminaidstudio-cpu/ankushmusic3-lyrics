@@ -1,37 +1,111 @@
+"use client";
+
 import Link from "next/link";
-import songs from "../data/songs.json";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabase";
+
+type Song = {
+  id: string;
+  slug: string;
+  title: string;
+  artist: string;
+  lyrics: string;
+  youtube_url: string | null;
+  spotify_url: string | null;
+  cover_url: string | null;
+  release_date: string | null;
+  published: boolean;
+};
 
 export default function Home() {
-  const latest = songs.slice(0, 6);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadSongs() {
+      const { data, error } = await supabase
+        .from("songs")
+        .select("*")
+        .eq("published", true)
+        .order("release_date", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if (!error && data) setSongs(data as Song[]);
+      setLoading(false);
+    }
+    loadSongs();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return songs;
+    return songs.filter(
+      (song) =>
+        song.title.toLowerCase().includes(q) ||
+        song.artist.toLowerCase().includes(q) ||
+        song.lyrics.toLowerCase().includes(q)
+    );
+  }, [songs, search]);
+
   return (
     <main>
-      <header className="site-header">
-        <Link className="brand" href="/">ANKUSH<span>MUSIC3</span></Link>
-        <nav><Link href="/">Lyrics</Link><Link href="/admin">Admin</Link></nav>
-      </header>
+      <nav className="nav">
+        <Link href="/" className="brand">ANKUSH<span>MUSIC3</span></Link>
+        <Link href="/admin" className="admin-link">Admin</Link>
+      </nav>
 
       <section className="hero">
-        <div className="eyebrow">OFFICIAL LYRICS ARCHIVE</div>
+        <p className="eyebrow">OFFICIAL LYRICS ARCHIVE</p>
         <h1>Words behind<br /><span>the music.</span></h1>
-        <p>Official lyrics, credits and listening links from ANKUSHMUSIC3.</p>
-        <div className="search-shell">⌕ <input placeholder="Search lyrics, songs..." aria-label="Search lyrics" /></div>
-      </section>
-
-      <section className="section">
-        <div className="section-head"><div><div className="eyebrow">LATEST</div><h2>Latest Lyrics</h2></div><span>{songs.length} songs</span></div>
-        <div className="song-grid">
-          {latest.map(song => (
-            <Link className="song-card" href={`/lyrics/${song.slug}`} key={song.slug}>
-              <div className="cover"><span>{song.title.slice(0,1)}</span></div>
-              <div className="card-meta"><div><h3>{song.title}</h3><p>{song.artist} · {song.year}</p></div><b>↗</b></div>
-            </Link>
-          ))}
+        <p className="hero-copy">Official lyrics, releases and links from ANKUSHMUSIC3.</p>
+        <div className="search-wrap">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search songs or lyrics..."
+            aria-label="Search songs or lyrics"
+          />
         </div>
       </section>
 
-      <footer className="footer">
-        <div><strong>ANKUSHMUSIC3</strong><p>Official lyrics archive by Ankush X.</p></div>
-        <p>© 2026 ANKUSHMUSIC3. All Rights Reserved.</p>
+      <section className="section">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">LATEST</p>
+            <h2>Latest Lyrics</h2>
+          </div>
+          <span className="count">{filtered.length} songs</span>
+        </div>
+
+        {loading ? (
+          <div className="empty">Loading lyrics...</div>
+        ) : filtered.length === 0 ? (
+          <div className="empty">No published songs found.</div>
+        ) : (
+          <div className="song-grid">
+            {filtered.map((song) => (
+              <Link href={`/lyrics/${song.slug}`} className="song-card" key={song.id}>
+                <div
+                  className="cover"
+                  style={song.cover_url ? { backgroundImage: `url(${song.cover_url})` } : undefined}
+                >
+                  {!song.cover_url && <span>AM3</span>}
+                </div>
+                <div className="song-info">
+                  <p>{song.artist}</p>
+                  <h3>{song.title}</h3>
+                  <span>Read lyrics →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <footer>
+        <p>© {new Date().getFullYear()} ANKUSHMUSIC3. All rights reserved.</p>
+        <p>Lyrics and original content are protected by applicable copyright laws.</p>
       </footer>
     </main>
   );
