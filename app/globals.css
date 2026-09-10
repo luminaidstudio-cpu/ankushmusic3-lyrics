@@ -300,3 +300,112 @@ textarea { resize: vertical; line-height: 1.6; }
 @keyframes lyricsReveal { from{opacity:0;transform:translateY(50px)} to{opacity:1;transform:none} }
 .lyrics .lyric-section { text-shadow:0 0 22px rgba(255,31,61,.12); }
 .lyrics .lyric-line { will-change:transform; }
+
+/* --- AM3 professional pointer + click VFX --- */
+@media (pointer: fine) {
+  html, body, a, button, input, textarea, [role="button"] { cursor: none !important; }
+  .am3-cursor,
+  .am3-cursor-ring {
+    position: fixed;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    z-index: 99999;
+    will-change: transform;
+  }
+  .am3-cursor {
+    width: 28px;
+    height: 34px;
+    margin-left: -3px;
+    margin-top: -3px;
+    transform-origin: 4px 3px;
+    transition: filter .2s ease, scale .2s ease;
+  }
+  .am3-cursor svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 5px rgba(255,31,61,.55)); }
+  .am3-cursor path { fill: #ff1f3d; stroke: #fff; stroke-width: 1.2; stroke-linejoin: round; }
+  .am3-cursor-ring {
+    width: 38px;
+    height: 38px;
+    margin-left: -19px;
+    margin-top: -19px;
+    border: 1px solid rgba(255,31,61,.42);
+    border-radius: 50%;
+    transition: width .25s ease, height .25s ease, margin .25s ease, border-color .25s ease, background .25s ease;
+  }
+  body.am3-cursor-hover .am3-cursor-ring {
+    width: 58px;
+    height: 58px;
+    margin-left: -29px;
+    margin-top: -29px;
+    border-color: rgba(255,31,61,.8);
+    background: rgba(255,31,61,.045);
+  }
+  body.am3-cursor-hover .am3-cursor { filter: drop-shadow(0 0 11px rgba(255,31,61,.95)); scale: 1.08; }
+}
+
+.click-vfx {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  z-index: 99998;
+  pointer-events: none;
+}
+.click-vfx::before,
+.click-vfx::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  margin: -9px;
+  border: 1px solid rgba(255,31,61,.75);
+  border-radius: 50%;
+  animation: clickRing .55s cubic-bezier(.15,.75,.25,1) forwards;
+}
+.click-vfx::after { border-color: rgba(255,255,255,.55); animation-delay: .05s; }
+.click-vfx i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 9px;
+  margin-left: -1px;
+  margin-top: -4px;
+  border-radius: 999px;
+  background: var(--red);
+  transform-origin: 50% 4px;
+  animation: clickParticle .52s cubic-bezier(.1,.8,.2,1) forwards;
+  transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1));
+}
+@keyframes clickRing { 0% { opacity: .9; transform: scale(.35); } 100% { opacity: 0; transform: scale(3.7); } }
+@keyframes clickParticle { 0% { opacity: 0; transform: rotate(var(--angle)) translateY(0) scale(.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1)) scale(1); } }
+
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255,31,61,.2), #070707 52%);
+  clip-path: circle(0% at 50% 50%);
+  opacity: .98;
+}
+.page-transition span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .35em;
+  color: #fff;
+  opacity: 0;
+}
+body.am3-page-transition .page-transition { animation: pageWipe .42s cubic-bezier(.77,0,.18,1) forwards; }
+body.am3-page-transition .page-transition span { animation: pageLogo .34s .05s ease forwards; }
+@keyframes pageWipe { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
+@keyframes pageLogo { 0% { opacity: 0; transform: scale(.75); letter-spacing: .6em; } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(1.05); letter-spacing: .35em; } }
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .click-vfx, .page-transition { display: none !important; }
+}
