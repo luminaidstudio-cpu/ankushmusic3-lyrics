@@ -86,6 +86,18 @@ export default function Home() {
           </div>
           <div className="hero-tags"><span>LYRICS</span><span>ANKUSH X</span><span>ORIGINALS</span><span>24/7 ARCHIVE</span></div>
         </div>
+        <div className="hero-visual" aria-hidden="true">
+          <div className="visual-glow" />
+          <div className="visual-orbit visual-orbit-a" />
+          <div className="visual-orbit visual-orbit-b" />
+          <div className="visual-disc">
+            <div className="disc-grooves" />
+            <div className="disc-label"><small>AM3</small><b>ANKUSH<br/>MUSIC3</b><span>ORIGINAL SOUND</span></div>
+          </div>
+          <div className="visual-cross" />
+          <div className="visual-bars"><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/></div>
+          <div className="visual-caption"><span>NOW PLAYING</span><b>WORDS / SOUND / STORIES</b></div>
+        </div>
         <div className="hero-side-note"><span>SCROLL TO EXPLORE</span><b>↓</b></div>
       </section>
 
