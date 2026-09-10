@@ -14,3 +14,7 @@ The publishable key is intended for browser use. Never put a Supabase secret/ser
 Open `/admin` and sign in with the Supabase Auth email/password user created for the site.
 
 The admin can add, edit, publish/unpublish, and delete songs. Public pages show only published songs.
+
+## SEO
+
+The site includes an automatic `sitemap.xml` for published lyric pages and a `robots.txt` that keeps the admin area out of search crawling.
