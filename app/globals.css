@@ -230,3 +230,73 @@ textarea { resize: vertical; line-height: 1.6; }
     scroll-behavior: auto !important;
   }
 }
+
+/* --- ANKUSHMUSIC3 anime scroll experience --- */
+.home-page { position: relative; overflow: hidden; }
+.scroll-progress { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 3px; background: rgba(255,255,255,.04); }
+.scroll-progress span { display:block; height:100%; background: linear-gradient(90deg, transparent, var(--red), #ff6075); box-shadow: 0 0 16px rgba(255,31,61,.8); transition: width .08s linear; }
+.nav-anime { position: relative; z-index: 10; }
+.nav-anime::after { content:""; position:absolute; left:24px; right:24px; bottom:0; height:1px; background:linear-gradient(90deg,var(--red),transparent 45%,transparent); opacity:.55; }
+.nav-actions { display:flex; gap:24px; align-items:center; }
+.nav-actions a { color:var(--muted); font-size:12px; transition:.25s; }
+.nav-actions a:hover { color:#fff; transform:translateY(-2px); }
+.hero-anime { min-height: calc(100vh - 78px); display:flex; flex-direction:column; justify-content:center; position:relative; padding-top:80px; }
+.hero-stamp { position:absolute; right:24px; top:70px; writing-mode:vertical-rl; color:#555; font-size:10px; letter-spacing:.25em; }
+.hero-anime h1 { animation: am3Rise .9s both; text-shadow: 0 0 55px rgba(255,31,61,.08); }
+.hero-anime h1 span { display:inline-block; animation: titlePulse 4s ease-in-out infinite; }
+@keyframes titlePulse { 0%,100%{text-shadow:0 0 0 transparent} 50%{text-shadow:0 0 35px rgba(255,31,61,.28)} }
+.hero-copy { animation: am3Rise .8s .15s both; }
+.glitch-label { position:relative; width:max-content; animation: am3Rise .7s both; }
+.glitch-label::after { content:"OFFICIAL // ARCHIVE"; position:absolute; left:2px; top:0; color:#fff; opacity:.15; transform:translate(2px,-1px); animation: glitch 2.8s infinite steps(1); }
+@keyframes glitch { 0%,92%,100%{clip-path:inset(0 0 100% 0)} 93%{clip-path:inset(0 0 45% 0);transform:translate(-3px,-1px)} 95%{clip-path:inset(55% 0 0 0);transform:translate(3px,1px)} 97%{clip-path:inset(20% 0 35% 0);transform:translate(-1px,0)} }
+.anime-search { position:relative; max-width:650px; animation: am3Rise .8s .3s both; }
+.anime-search input { padding:17px 85px 17px 45px; border-radius:14px; background:rgba(10,10,10,.75); backdrop-filter:blur(12px); }
+.anime-search:focus-within { transform:translateY(-3px); filter:drop-shadow(0 0 18px rgba(255,31,61,.13)); }
+.search-icon { position:absolute; left:17px; top:11px; font-size:25px; color:var(--red); z-index:1; }
+.anime-search kbd { position:absolute; right:13px; top:11px; color:#666; font-size:10px; border:1px solid #333; padding:6px 7px; border-radius:6px; }
+.hero-tags { display:flex; gap:8px; margin-top:16px; animation:am3Rise .8s .4s both; }
+.hero-tags span { border:1px solid #252525; border-radius:999px; padding:6px 9px; color:#666; font-size:9px; letter-spacing:.16em; }
+.anime-orbit { position:absolute; border:1px solid rgba(255,31,61,.12); border-radius:50%; pointer-events:none; }
+.orbit-one { width:680px;height:680px; right:-380px; top:80px; animation:orbitSpin 28s linear infinite; }
+.orbit-two { width:420px;height:420px; left:-280px; top:65vh; animation:orbitSpin 20s linear infinite reverse; }
+@keyframes orbitSpin { to{transform:rotate(360deg)} }
+.speed-lines { position:absolute; right:7%; top:26%; width:150px; height:250px; pointer-events:none; opacity:.18; transform:rotate(-24deg); }
+.speed-lines i { display:block; height:1px; background:var(--red); margin:32px 0; animation:speed 2.2s infinite; }
+.speed-lines i:nth-child(2){width:70%;margin-left:25%;animation-delay:.2s}.speed-lines i:nth-child(3){width:45%;animation-delay:.45s}.speed-lines i:nth-child(4){width:82%;margin-left:8%;animation-delay:.7s}.speed-lines i:nth-child(5){width:55%;margin-left:35%;animation-delay:.95s}
+@keyframes speed { 0%,100%{transform:translateX(0);opacity:.15} 50%{transform:translateX(35px);opacity:.8} }
+.scroll-cue { position:fixed; z-index:20; right:25px; bottom:35px; width:68px; height:92px; border:1px solid #303030; border-radius:999px; background:rgba(8,8,8,.65); backdrop-filter:blur(10px); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; transition:.3s; }
+.scroll-cue:hover { border-color:var(--red); transform:translateY(-5px); box-shadow:0 0 30px rgba(255,31,61,.18); }
+.cue-text { font-size:7px; letter-spacing:.28em; color:#777; transform:rotate(-90deg); position:absolute; left:-1px; }
+.cue-arrow { font-size:30px; line-height:20px; color:var(--red); animation:arrowDrop 1.35s infinite; }
+.cue-arrow.second { animation-delay:.18s; opacity:.38; margin-top:-7px; }
+@keyframes arrowDrop { 0%{transform:translateY(-4px);opacity:.2} 45%{opacity:1} 100%{transform:translateY(8px);opacity:.05} }
+.section[data-reveal], .manifesto[data-reveal] { opacity:0; transform:translateY(70px); transition:opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
+.section[data-reveal].is-visible, .manifesto[data-reveal].is-visible { opacity:1; transform:none; }
+.section-head-anime { border-bottom:1px solid #1d1d1d; padding-bottom:20px; }
+.section-head-anime h2 { font-size:clamp(36px,6vw,72px); letter-spacing:-.06em; }
+.section-head-anime h2 span { color:var(--red); }
+.anime-card { position:relative; opacity:0; transform:translateY(55px) scale(.97); transition:opacity .75s ease var(--delay), transform .75s cubic-bezier(.2,.8,.2,1) var(--delay), border-color .3s; }
+.anime-card.is-visible { opacity:1; transform:none; }
+.anime-card:hover { transform:translateY(-9px) !important; border-color:#4b1a22; box-shadow:0 22px 60px rgba(0,0,0,.42),0 0 35px rgba(255,31,61,.07); }
+.card-number { position:absolute; z-index:4; right:12px; top:12px; font-size:9px; letter-spacing:.15em; color:#aaa; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.1); padding:5px 7px; border-radius:999px; backdrop-filter:blur(5px); }
+.cover { position:relative; overflow:hidden; }
+.cover-scan { position:absolute; left:-10%; right:-10%; top:-25%; height:22%; background:linear-gradient(to bottom,transparent,rgba(255,255,255,.13),transparent); transform:skewY(-3deg); animation:coverSweep 5s ease-in-out infinite; }
+@keyframes coverSweep { 0%,55%,100%{transform:translateY(-160%) skewY(-3deg)} 75%{transform:translateY(520%) skewY(-3deg)} }
+.read-link { display:flex; justify-content:space-between; align-items:center; }
+.read-link b { color:var(--red); font-size:18px; transition:.3s; }
+.anime-card:hover .read-link b { transform:translate(6px,-4px) rotate(8deg); }
+.manifesto { max-width:1180px; margin:100px auto 150px; padding:70px 24px; border-top:1px solid #242424; border-bottom:1px solid #242424; display:grid; grid-template-columns:1.1fr .9fr; gap:70px; }
+.manifesto h2 { margin:0; font-size:clamp(48px,7vw,92px); line-height:.88; letter-spacing:-.07em; }
+.manifesto h2 span { color:var(--red); }
+.manifesto > p { color:#777; font-size:18px; line-height:1.8; max-width:500px; align-self:end; }
+@media(max-width:800px){.nav-actions a:first-child{display:none}.scroll-cue{right:14px;bottom:18px;width:56px;height:78px}.speed-lines{right:-40px}.manifesto{grid-template-columns:1fr;gap:30px;margin:70px auto}.hero-stamp{display:none}}
+@media(prefers-reduced-motion:reduce){.scroll-cue,.speed-lines,.anime-orbit,.cover-scan{animation:none!important}.section[data-reveal],.manifesto[data-reveal],.anime-card{opacity:1!important;transform:none!important}}
+
+/* lyrics page scroll direction + anime rail */
+.lyrics-site { position:relative; overflow:hidden; }
+.lyrics-site::after { content:""; position:fixed; right:10px; top:22%; width:1px; height:42vh; background:linear-gradient(to bottom,transparent,var(--red),transparent); opacity:.2; pointer-events:none; }
+.lyrics-cue { opacity:.9; }
+.lyrics-reveal { animation: lyricsReveal .9s .25s both; }
+@keyframes lyricsReveal { from{opacity:0;transform:translateY(50px)} to{opacity:1;transform:none} }
+.lyrics .lyric-section { text-shadow:0 0 22px rgba(255,31,61,.12); }
+.lyrics .lyric-line { will-change:transform; }

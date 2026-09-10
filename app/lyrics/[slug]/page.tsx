@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -33,6 +33,19 @@ export default function LyricsPage() {
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const lyricsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? (window.scrollY / max) * 100 : 0);
+    };
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => { window.removeEventListener("scroll", updateProgress); window.removeEventListener("resize", updateProgress); };
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -77,7 +90,9 @@ export default function LyricsPage() {
   const lines = song.lyrics.split("\n");
 
   return (
-    <main>
+    <main className="lyrics-site">
+      <div className="scroll-progress"><span style={{ width: `${progress}%` }} /></div>
+      <button className="scroll-cue lyrics-cue" onClick={() => lyricsRef.current?.scrollIntoView({ behavior: "smooth" })} aria-label="Scroll to lyrics"><span className="cue-text">LYRICS</span><span className="cue-arrow">⌄</span><span className="cue-arrow second">⌄</span></button>
       <nav className="nav">
         <Link href="/" className="brand">ANKUSH<span>MUSIC3</span></Link>
         <Link href="/" className="admin-link">‹ Back</Link>
@@ -123,7 +138,7 @@ export default function LyricsPage() {
           <h2>Words behind the music.</h2>
         </div>
 
-        <div className="lyrics">
+        <div className="lyrics lyrics-reveal" ref={lyricsRef}>
           {lines.map((line, i) => (
             isSection(line)
               ? <div key={i} className="lyric-section">{line.replace(/^\[|\]$/g, "")}</div>
