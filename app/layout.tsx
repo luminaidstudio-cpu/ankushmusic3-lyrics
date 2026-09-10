@@ -4,7 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "ANKUSHMUSIC3 — Lyrics",
-  description: "Official lyrics by ANKUSHMUSIC3 / Ankush X."
+  description: "Official lyrics by ANKUSHMUSIC3 / Ankush X.",
+  verification: {
+    google: "bWNZ83Ayuzug9FyG5Fy-aJjRP32kMrVWVYmO_lmHRcY"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
