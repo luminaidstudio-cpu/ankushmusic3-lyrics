@@ -125,17 +125,21 @@ export default function Home() {
         </Link> : <div className="empty">No published songs found.</div>}
       </section>
 
-      <section className="section latest-section" id="latest" ref={latestRef} data-reveal>
+      <section className="section latest-section archive-pro" id="latest" ref={latestRef} data-reveal>
+        <div className="archive-topline"><span>01 / LYRICS ARCHIVE</span><span>SEARCH / READ / REPEAT</span></div>
         <div className="section-head section-head-anime pro-section-head">
-          <div><p className="eyebrow">01 / LATEST DROP</p><h2>Latest Lyrics<span>.</span></h2></div>
+          <div><p className="eyebrow">LATEST RELEASES</p><h2>Words in motion<span>.</span></h2></div>
           <span className="count">{filtered.length.toString().padStart(2,"0")} TRACKS</span>
         </div>
+        <div className="archive-intro"><p>Every release gets its own space. Tap a track to open the official lyrics, links and release details.</p><span>ANKUSHMUSIC3 / OFFICIAL</span></div>
         {loading ? <div className="empty">Loading archive...</div> : filtered.length === 0 ? <div className="empty">No published songs found.</div> : (
-          <div className="song-grid anime-grid pro-grid">
-            {filtered.map((song,index) => <Link href={`/lyrics/${song.slug}`} className="song-card anime-card pro-card" key={song.id} data-reveal style={{"--delay":`${index*80}ms`} as React.CSSProperties}>
-              <div className="card-number">{String(index+1).padStart(2,"0")}</div>
-              <div className="cover" style={song.cover_url ? { backgroundImage:`url(${song.cover_url})` } : undefined}>{!song.cover_url && <span>AM3</span>}<div className="cover-scan"/><div className="card-corner">↗</div></div>
-              <div className="song-info"><p>{song.artist}</p><h3>{song.title}</h3><span className="read-link">READ LYRICS <b>↗</b></span></div>
+          <div className="archive-list">
+            {filtered.map((song,index) => <Link href={`/lyrics/${song.slug}`} className="archive-row" key={song.id} data-reveal style={{"--delay":`${index*90}ms`} as React.CSSProperties}>
+              <span className="archive-index">{String(index+1).padStart(2,"0")}</span>
+              <div className="archive-thumb" style={song.cover_url ? { backgroundImage:`url(${song.cover_url})` } : undefined}>{!song.cover_url && <span>AM3</span>}<i/></div>
+              <div className="archive-main"><p>{song.artist}</p><h3>{song.title}</h3></div>
+              <div className="archive-date"><span>RELEASE</span><b>{song.release_date || "ORIGINAL"}</b></div>
+              <div className="archive-open"><span>OPEN LYRICS</span><b>↗</b></div>
             </Link>)}
           </div>
         )}
